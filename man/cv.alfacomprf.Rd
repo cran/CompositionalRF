@@ -1,5 +1,5 @@
-\name{cv.comprf}
-\alias{cv.comprf}
+\name{cv.alfacomprf}
+\alias{cv.alfacomprf}
 \title{
 Cross-Validation of the Compositional Random Forests
 }
@@ -9,8 +9,8 @@ Cross-Validation of the Compositional Random Forests.
 }
 
 \usage{
-cv.comprf(y, x, ntrees = c(50, 100, 500, 1000), nfeatures, minleaf,
-folds = NULL, nfolds = 10, seed = NULL, ncores = 1)
+cv.alfacomprf(y, x, a = seq(-1, 1, by = 0.1), ntrees = c(100, 500, 1000), 
+nfeatures, minleaf, folds = NULL, nfolds = 10, seed = NULL, ncores = 1)
 }
 
 \arguments{
@@ -19,6 +19,9 @@ The response compositional data. Zero values are not allowed.
 }
 \item{x}{
 A matrix with the predictor variables data.
+}
+\item{a}{
+A vector of \eqn{\alpha} values.
 }
 \item{ntrees}{
 A vector with the possible number of trees to consider each time.

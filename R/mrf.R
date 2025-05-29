@@ -5,7 +5,7 @@ mrf <- function(xnew, y, x, ntrees, nfeatures, minleaf, ncores = 1L) {
     .Call(`_CompositionalRF_mrf`, xnew, y, x, ntrees, nfeatures, minleaf, ncores)
 }
 
-alrOptimized <- function(x) {
+.alrOptimized <- function(x) {
     .Call(`_CompositionalRF_alrOptimized`, x)
 }
 

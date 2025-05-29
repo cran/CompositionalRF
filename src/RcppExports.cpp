@@ -10,26 +10,38 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// build_forest_predict_cpp
-NumericMatrix build_forest_predict_cpp(NumericMatrix trainX, NumericMatrix trainY, int n_tree, int m_feature, int min_leaf, NumericMatrix testX, int nCores);
-RcppExport SEXP _CompositionalRF_build_forest_predict_cpp(SEXP trainXSEXP, SEXP trainYSEXP, SEXP n_treeSEXP, SEXP m_featureSEXP, SEXP min_leafSEXP, SEXP testXSEXP, SEXP nCoresSEXP) {
+// mrf
+NumericMatrix mrf(NumericMatrix xnew, NumericMatrix y, NumericMatrix x, int ntrees, int nfeatures, int minleaf, int ncores);
+RcppExport SEXP _CompositionalRF_mrf(SEXP xnewSEXP, SEXP ySEXP, SEXP xSEXP, SEXP ntreesSEXP, SEXP nfeaturesSEXP, SEXP minleafSEXP, SEXP ncoresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type trainX(trainXSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type trainY(trainYSEXP);
-    Rcpp::traits::input_parameter< int >::type n_tree(n_treeSEXP);
-    Rcpp::traits::input_parameter< int >::type m_feature(m_featureSEXP);
-    Rcpp::traits::input_parameter< int >::type min_leaf(min_leafSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type testX(testXSEXP);
-    Rcpp::traits::input_parameter< int >::type nCores(nCoresSEXP);
-    rcpp_result_gen = Rcpp::wrap(build_forest_predict_cpp(trainX, trainY, n_tree, m_feature, min_leaf, testX, nCores));
+    Rcpp::traits::input_parameter< NumericMatrix >::type xnew(xnewSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type ntrees(ntreesSEXP);
+    Rcpp::traits::input_parameter< int >::type nfeatures(nfeaturesSEXP);
+    Rcpp::traits::input_parameter< int >::type minleaf(minleafSEXP);
+    Rcpp::traits::input_parameter< int >::type ncores(ncoresSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrf(xnew, y, x, ntrees, nfeatures, minleaf, ncores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alrOptimized
+SEXP alrOptimized(SEXP x);
+RcppExport SEXP _CompositionalRF_alrOptimized(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(alrOptimized(x));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_CompositionalRF_build_forest_predict_cpp", (DL_FUNC) &_CompositionalRF_build_forest_predict_cpp, 7},
+    {"_CompositionalRF_mrf", (DL_FUNC) &_CompositionalRF_mrf, 7},
+    {"_CompositionalRF_alrOptimized", (DL_FUNC) &_CompositionalRF_alrOptimized, 1},
     {NULL, NULL, 0}
 };
 

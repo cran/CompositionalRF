@@ -1,7 +1,6 @@
-// Based on the code of MultivariateRandomForest
+// Based on the R package MultivariateRandomForest of Raziur Rahman
 
-// [[Rcpp::depends(RcppArmadillo)]]
-// #include <RcppArmadillo.h>
+// [[Rcpp::depends(RcppParallel)]]
 #include <Rcpp.h>
 #include <RcppParallel.h>
 #include <memory>
@@ -73,11 +72,11 @@ List splitt22(NumericMatrix X, NumericMatrix Y, int m_feature,
     
     std::vector<double> cum_sum(n, 0.0), cum_sum_sq(n, 0.0);
     if (Command == 1 && ncolY == 1) {
-      cum_sum[0] = y(order[0], 0);
+      cum_sum[0] = y[order[0]];
       cum_sum_sq[0] = cum_sum[0] * cum_sum[0];
       for (int i = 1; i < n; i++) {
-        cum_sum[i] = cum_sum[i - 1] + y(order[i], 0);
-        cum_sum_sq[i] = cum_sum_sq[i - 1] + y(order[i], 0) * y(order[i], 0);
+        cum_sum[i] = cum_sum[i - 1] + y[order[i]];
+        cum_sum_sq[i] = cum_sum_sq[i - 1] + y[order[i]] * y[order[i]];
       }
     }
     
@@ -235,11 +234,11 @@ struct SplitWorker : public Worker {
       // --- Branch for univariate response:
       if (command == 1 && ncolY == 1) {
         std::vector<double> cum_sum(n), cum_sum_sq(n);
-        double y_val = y(order_local[0], 0);
+        double y_val = y[order_local[0]];
         cum_sum[0] = y_val;
         cum_sum_sq[0] = y_val * y_val;
         for (int i = 1; i < n; i++) {
-          double val = y(order_local[i], 0);
+          double val = y[order_local[i]];
           cum_sum[i] = cum_sum[i - 1] + val;
           cum_sum_sq[i] = cum_sum_sq[i - 1] + val * val;
         }
@@ -375,7 +374,7 @@ struct SplitWorker : public Worker {
 
 List splitt22_parallel(NumericMatrix X, NumericMatrix Y, int m_feature,
                        NumericVector Index, NumericMatrix Inv_Cov_Y,
-                       int Command, NumericVector ff, int nCores) {
+                       int Command, NumericVector ff, int ncores) {
   // 1. Adjust indices from R's 1-indexing to C++'s 0-indexing.
   int n = Index.size();
   std::vector<int> indices(n);
@@ -417,7 +416,7 @@ List splitt22_parallel(NumericMatrix X, NumericMatrix Y, int m_feature,
   SplitWorker worker(n, ncolX, ncolY, Command, rX, rY, indices, feats, rInvCovY);
   
   // Control the maximum number of threads.
-  tbb::global_control gc(tbb::global_control::max_allowed_parallelism, nCores);
+  tbb::global_control gc(tbb::global_control::max_allowed_parallelism, ncores);
   parallelReduce(0, static_cast<size_t>(m_feature), worker);
   
   // 6. Return the best split result as an R list.
@@ -431,12 +430,12 @@ List splitt22_parallel(NumericMatrix X, NumericMatrix Y, int m_feature,
 
 List splitt2_fun(NumericMatrix X, NumericMatrix Y, int m_feature, 
                  NumericVector Index, NumericMatrix Inv_Cov_Y, 
-                 int Command, NumericVector ff, int nCores = 0) {
+                 int Command, NumericVector ff, int ncores = 1) {
   
 #if RCPP_PARALLEL_USE_TBB
-  if (nCores > 0){
+  if (ncores > 1){
     return splitt22_parallel(X, Y, m_feature, Index, Inv_Cov_Y, Command, ff,
-                             nCores);
+                             ncores);
   } else {
     return splitt22(X, Y, m_feature, Index, Inv_Cov_Y, Command, ff);
   }
@@ -461,7 +460,7 @@ List split_node_iterative_cpp(const NumericMatrix &X,
                               int min_leaf, 
                               const NumericMatrix &Inv_Cov_Y,
                               int Command,
-                              int nCores = 0) {
+                              int ncores = 1) {
   
   // The "model" is stored as a vector, where the element at index (nodeid-1)
   // corresponds to the node's information.
@@ -511,7 +510,7 @@ List split_node_iterative_cpp(const NumericMatrix &X,
       
       // Call your Rcpp-based splitting function.
       List Result = splitt2_fun(X, Y, m_feature, indices, Inv_Cov_Y, Command,
-                                ff, nCores);
+                                ff, ncores);
       // Assume that the first two elements of Result are:
       //   Result[0]: left indices (Index_left)
       //   Result[1]: right indices (Index_right)
@@ -585,7 +584,7 @@ List build_single_tree_cpp(const NumericMatrix &X,
                            int min_leaf, 
                            const NumericMatrix &Inv_Cov_Y,
                            int Command,
-                           int nCores = 0) {
+                           int ncores = 1) {
   // Create an index vector from 1 to nrow(X)
   int n = X.nrow();
   NumericVector Index(n);
@@ -594,7 +593,7 @@ List build_single_tree_cpp(const NumericMatrix &X,
   }
   
   // Call the iterative splitting function.
-  List model = split_node_iterative_cpp(X, Y, m_feature, Index, min_leaf, Inv_Cov_Y, Command, nCores);
+  List model = split_node_iterative_cpp(X, Y, m_feature, Index, min_leaf, Inv_Cov_Y, Command, ncores);
   
   return model;
 }
@@ -654,7 +653,7 @@ NumericMatrix predicting_cpp(List Single_Model, int start_node, NumericVector X_
       else {
         double sum = 0.0, c = 0.0;
         for (int r = 0; r < nrows; r++) {
-          double value = leaf_matrix(r, 0);
+          double value = leaf_matrix[r];
           double y = value - c;
           double t = sum + y;
           c = (t - sum) - y;
@@ -717,7 +716,7 @@ struct PredictionWorker : public Worker {
           } else {
             double sum = 0.0;
             for (int r = 0; r < nrows; r++) {
-              sum += leaf_matrix(r, 0);
+              sum += leaf_matrix[r];
             }
             prediction[0] = sum / nrows;
           }
@@ -736,7 +735,7 @@ struct PredictionWorker : public Worker {
 // Parallel Prediction Function
 //
 // This function computes predictions for all test observations.
-// If nCores <= 0, it runs serially; otherwise, it uses RcppParallel's parallelFor
+// If ncores <= 0, it runs serially; otherwise, it uses RcppParallel's parallelFor
 // with TBB's global_control to set the maximum number of threads.
 //------------------------------------------------------------------------------
 
@@ -871,7 +870,7 @@ struct NativePredictionWorker : public Worker {
 NumericMatrix predicting_parallel_native_cpp(List Single_Model,
                                              NumericMatrix X_test, 
                                              int Variable_number, 
-                                             int nCores = 0) {
+                                             int ncores = 1) {
   // Convert the model to a pure C++ tree.
   std::vector<Node> nativeTree = convertModel(Single_Model);
   
@@ -879,9 +878,9 @@ NumericMatrix predicting_parallel_native_cpp(List Single_Model,
   NumericMatrix out(nObs, Variable_number);
   
 #if RCPP_PARALLEL_USE_TBB
-  if (nCores > 0) {
+  if (ncores > 1) {
     // Limit the maximum number of threads.
-    tbb::global_control gc(tbb::global_control::max_allowed_parallelism, nCores);
+    tbb::global_control gc(tbb::global_control::max_allowed_parallelism, ncores);
     NativePredictionWorker worker(nativeTree, X_test, Variable_number, out);
     parallelFor(0, nObs, worker);
   } else {
@@ -1165,7 +1164,7 @@ struct CovWorker : public Worker {
   }
 };
 
-NumericMatrix myCovarianceParallel(NumericMatrix X, int nCores = 0) {
+NumericMatrix myCovarianceParallel(NumericMatrix X, int ncores = 1) {
   int n = X.nrow();
   int p = X.ncol();
   if(n < 2) stop("Need at least 2 observations.");
@@ -1184,8 +1183,8 @@ NumericMatrix myCovarianceParallel(NumericMatrix X, int nCores = 0) {
   NumericMatrix covMat(p, p); // p x p output
   
   CovWorker worker(X, n, p, means, covMat);
-  if(nCores > 0)
-    parallelFor(0, (size_t)p, worker, nCores);
+  if(ncores > 1)
+    parallelFor(0, (size_t)p, worker, ncores);
   else
     worker(0, p);
   
@@ -1243,7 +1242,7 @@ struct MatMulWorker : public Worker {
 // Here we compute L = cholDecomp(A), then Linv = invLowerTri(L), then 
 // Ainv = transpose(Linv) * Linv, where the final multiplication is
 // parallelized using MatMulWorker.
-NumericMatrix myInvSympdParallel(NumericMatrix A, int nCores = 0) {
+NumericMatrix myInvSympdParallel(NumericMatrix A, int ncores = 1) {
   int n = A.nrow();
   if(n != A.ncol()) stop("Input matrix must be square.");
   
@@ -1253,19 +1252,19 @@ NumericMatrix myInvSympdParallel(NumericMatrix A, int nCores = 0) {
   
   NumericMatrix Ainv(n, n);
   MatMulWorker worker(LinvT, Linv, Ainv);
-  if(nCores > 0)
-    parallelFor(0, (size_t)n, worker, nCores);
+  if(ncores > 1)
+    parallelFor(0, (size_t)n, worker, ncores);
   else
     worker(0, n);
   
   return Ainv;
 }
 
-NumericMatrix cov_fun(NumericMatrix X, int nCores = 0) {
+NumericMatrix cov_fun(NumericMatrix X, int ncores = 1) {
   
 #if RCPP_PARALLEL_USE_TBB
-  if (nCores > 0){
-    return myCovarianceParallel(X, nCores);
+  if (ncores > 1){
+    return myCovarianceParallel(X, ncores);
   } else {
     return myCovariance(X);
   }
@@ -1274,11 +1273,11 @@ NumericMatrix cov_fun(NumericMatrix X, int nCores = 0) {
 #endif
 }
 
-NumericMatrix InvSympd_fun(NumericMatrix X, int nCores = 0) {
+NumericMatrix InvSympd_fun(NumericMatrix X, int ncores = 1) {
   
 #if RCPP_PARALLEL_USE_TBB
-  if (nCores > 0){
-    return myInvSympdParallel(X, nCores);
+  if (ncores > 1){
+    return myInvSympdParallel(X, ncores);
   } else {
     return myInvSympd(X);
   }
@@ -1287,32 +1286,33 @@ NumericMatrix InvSympd_fun(NumericMatrix X, int nCores = 0) {
 #endif
 }
 
-// [[Rcpp::export(".build_forest_predict_cpp")]]
-NumericMatrix build_forest_predict_cpp(NumericMatrix trainX, NumericMatrix trainY, 
-                                       int n_tree, int m_feature, int min_leaf, 
-                                       NumericMatrix testX, int nCores = 0) {
+// [[Rcpp::export]]
+NumericMatrix mrf(NumericMatrix xnew,
+                  NumericMatrix y, NumericMatrix x,
+                  int ntrees, int nfeatures, int minleaf, 
+                  int ncores = 1) {
   // Parameter checks.
-  int n_train = trainX.nrow();
-  int p_train = trainX.ncol();
-  if(n_tree < 1)
+  int n_train = x.nrow();
+  int p_train = x.ncol();
+  if(ntrees < 1)
     stop("Number of trees in the forest must be at least 1");
-  if(m_feature < 1)
+  if(nfeatures < 1)
     stop("Number of randomly selected features for a split must be at least 1");
-  if(min_leaf < 1 || min_leaf > n_train)
+  if(minleaf < 1 || minleaf > n_train)
     stop("Minimum leaf number must be at least 1 and no larger than the number of training samples");
-  if(p_train != testX.ncol() || n_train != trainY.nrow())
+  if(p_train != xnew.ncol() || n_train != y.nrow())
     stop("Data size is inconsistent");
   
   // Determine number of responses & test sample size.
-  int Variable_number = trainY.ncol();
-  int n_test = testX.nrow();
+  int Variable_number = y.ncol();
+  int n_test = xnew.nrow();
   
   // Preallocate output matrix Y_HAT (predictions) and initialize all entries to zero.
   NumericMatrix Y_HAT(n_test, Variable_number);
   std::fill(Y_HAT.begin(), Y_HAT.end(), 0.0);
   
   // Loop over each tree.
-  for (int tree_index = 0; tree_index < n_tree; tree_index++){
+  for (int tree_index = 0; tree_index < ntrees; tree_index++){
     // ---------------------------------------------------------------------
     // Bootstrap Sample Generation using Rcpp's sample() sugar
     // This generates a sample over 1:n_train (one-based) of size n_train with replacement.
@@ -1330,16 +1330,16 @@ NumericMatrix build_forest_predict_cpp(NumericMatrix trainX, NumericMatrix train
     NumericMatrix X_sub(n_train, p_train);
     NumericMatrix Y_sub(n_train, Variable_number);
     
-    // Subset trainX.
+    // Subset x.
     for (int j = 0; j < p_train; j++){
       for (int i = 0; i < n_train; i++){
-        X_sub(i, j) = trainX(indices[i], j);
+        X_sub(i, j) = x(indices[i], j);
       }
     }
-    // Subset trainY.
+    // Subset y.
     for (int j = 0; j < Variable_number; j++){
       for (int i = 0; i < n_train; i++){
-        Y_sub(i, j) = trainY(indices[i], j);
+        Y_sub(i, j) = y(indices[i], j);
       }
     }
     
@@ -1358,11 +1358,11 @@ NumericMatrix build_forest_predict_cpp(NumericMatrix trainX, NumericMatrix train
     }
     
     // Build a single tree using the bootstrap sample.
-    List Single_Model = build_single_tree_cpp(X_sub, Y_sub, m_feature, min_leaf, 
-                                              InvCovY, Command, nCores);
+    List Single_Model = build_single_tree_cpp(X_sub, Y_sub, nfeatures, minleaf, 
+                                              InvCovY, Command, ncores);
     
     // Get predictions on the test set from this tree.
-    NumericMatrix Y_pred = predicting_parallel_native_cpp(Single_Model, testX, Variable_number, nCores);
+    NumericMatrix Y_pred = predicting_parallel_native_cpp(Single_Model, xnew, Variable_number, ncores);
     
     // Accumulate predictions from this tree.
     int totElems = Y_HAT.size();
@@ -1374,8 +1374,95 @@ NumericMatrix build_forest_predict_cpp(NumericMatrix trainX, NumericMatrix train
   // Average the predictions over all trees.
   int totElems = Y_HAT.size();
   for (int i = 0; i < totElems; i++){
-    Y_HAT[i] /= n_tree;
+    Y_HAT[i] /= ntrees;
   }
   
   return Y_HAT;
+}
+
+// [[Rcpp::export]]
+SEXP alrOptimized(SEXP x) {
+  // Get dimensions of the input.
+  R_xlen_t nrow = Rf_nrows(x);
+  R_xlen_t ncol = Rf_ncols(x);
+  
+  if(ncol < 2) {
+    Rf_error("Input matrix must have at least two columns");
+  }
+  
+  // Allocate output matrix with one fewer column than input.
+  SEXP out = PROTECT(Rf_allocMatrix(REALSXP, nrow, ncol - 1));
+  double* out_ptr = REAL(out);
+  
+  // For column-major order, the first column start pointer is:
+  // x[ ,1] corresponds to the first nrow elements.
+  
+  // Process based on input type.
+  if (TYPEOF(x) == REALSXP) {
+    const double* RESTRICT x_ptr = REAL(x);
+    
+    // Loop over output columns (which correspond to input columns 2..ncol).
+    for (R_xlen_t j = 1; j < ncol; j++) {
+      const double* RESTRICT inCol = x_ptr + j * nrow;         // j-th column in x
+      double* RESTRICT outCol = out_ptr + (j - 1) * nrow;         // (j-1)-th column in output
+      const double* RESTRICT refCol = x_ptr;                      // First column in x
+      
+      R_xlen_t i = 0;
+      const R_xlen_t unroll = 8;
+#pragma GCC ivdep
+      for (; i <= nrow - unroll; i += unroll) {
+        outCol[i]     = std::log(inCol[i]     / refCol[i]);
+        outCol[i + 1] = std::log(inCol[i + 1] / refCol[i + 1]);
+        outCol[i + 2] = std::log(inCol[i + 2] / refCol[i + 2]);
+        outCol[i + 3] = std::log(inCol[i + 3] / refCol[i + 3]);
+        outCol[i + 4] = std::log(inCol[i + 4] / refCol[i + 4]);
+        outCol[i + 5] = std::log(inCol[i + 5] / refCol[i + 5]);
+        outCol[i + 6] = std::log(inCol[i + 6] / refCol[i + 6]);
+        outCol[i + 7] = std::log(inCol[i + 7] / refCol[i + 7]);
+      }
+      for (; i < nrow; i++) {
+        outCol[i] = std::log(inCol[i] / refCol[i]);
+      }
+    }
+    
+  } else if (TYPEOF(x) == INTSXP) {
+    // For integer input, perform the conversion on the fly.
+    const int* RESTRICT x_int = INTEGER(x);
+    
+    for (R_xlen_t j = 1; j < ncol; j++) {
+      double* RESTRICT outCol = out_ptr + (j - 1) * nrow;
+      R_xlen_t i = 0;
+      const R_xlen_t unroll = 8;
+      R_xlen_t j_nrow = j * nrow;
+#pragma GCC ivdep
+      for (; i <= nrow - unroll; i += unroll) {
+        outCol[i]     = std::log(static_cast<double>(x_int[i + j_nrow]) /
+          static_cast<double>(x_int[i]));
+        outCol[i + 1] = std::log(static_cast<double>(x_int[i + 1 + j_nrow]) /
+          static_cast<double>(x_int[i + 1]));
+        outCol[i + 2] = std::log(static_cast<double>(x_int[i + 2 + j_nrow]) /
+          static_cast<double>(x_int[i + 2]));
+        outCol[i + 3] = std::log(static_cast<double>(x_int[i + 3 + j_nrow]) /
+          static_cast<double>(x_int[i + 3]));
+        outCol[i + 4] = std::log(static_cast<double>(x_int[i + 4 + j_nrow]) /
+          static_cast<double>(x_int[i + 4]));
+        outCol[i + 5] = std::log(static_cast<double>(x_int[i + 5 + j_nrow]) /
+          static_cast<double>(x_int[i + 5]));
+        outCol[i + 6] = std::log(static_cast<double>(x_int[i + 6 + j_nrow]) /
+          static_cast<double>(x_int[i + 6]));
+        outCol[i + 7] = std::log(static_cast<double>(x_int[i + 7 + j_nrow]) /
+          static_cast<double>(x_int[i + 7]));
+      }
+      for (; i < nrow; i++) {
+        outCol[i] = std::log(static_cast<double>(x_int[i + j_nrow]) /
+          static_cast<double>(x_int[i]));
+      }
+    }
+    
+  } else {
+    Rf_error("Unsupported input type for alrOptimized");
+  }
+  
+  UNPROTECT(1);
+  return out;
 }
