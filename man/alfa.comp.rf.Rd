@@ -1,11 +1,11 @@
 \name{alfa.comp.rf}
 \alias{alfa.comp.rf}
 \title{
-Compositional Random Forests
+Compositional Random Forests using the alpha-transformation
 }
 
 \description{
-Compositional Random Forests.
+Compositional Random Forests using the alpha-transformation.
 }
 
 \usage{
@@ -47,11 +47,11 @@ that code is executed serially.
 }
 
 \details{
-The compositional are first log-transformed using the additive log-ratio transformation and then the multivariate random forest algorithm of Rahman, Otridge and Pal (2017) is applied.
+The compositional data are first using the \eqn{\alpha}-transformation and then the multivariate random forest algorithm of Rahman, Otridge and Pal (2017) is applied.
 }
 
 \value{
-A matrix with the estimated compositional response values.
+A list with the estimated compositional response values, one matrix for each value of \eqn{\alpha}.
 }
 
 \references{
@@ -59,7 +59,7 @@ Rahman R., Otridge J. and Pal R. (2017). IntegratedMRF: random forest-based fram
 integrating prediction from different data types. Bioinformatics, 33(9): 1407--1410.
 
 Segal M. and Xiao Y. (2011). Multivariate random forests.
-Wiley Interdisciplinary Reviews: Data mining and Knowledge Discovery, 1(1): 80--87.
+Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 1(1): 80--87.
 
 Tsagris M.T., Preston S. and Wood A.T.A. (2011). A data-based power transformation
 for compositional data. In Proceedings of the 4th Compositional Data Analysis Workshop,

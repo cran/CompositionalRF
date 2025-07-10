@@ -6,8 +6,4 @@ importFrom("Compositional", makefolds, alfa)
 importFrom("Rfast", colmeans)
 importFrom("stats", predict, ppr)
 
-import("doParallel")
-import("parallel")
-import("foreach")
-
 export("comp.rf", "cv.comprf", "mrf", "alfa.comp.rf", "cv.alfacomprf")
