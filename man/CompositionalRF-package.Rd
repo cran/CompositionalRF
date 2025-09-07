@@ -14,8 +14,8 @@ The data are first transformed using the additive log-ratio transformation and t
 \tabular{ll}{
 Package: \tab CompositionalRF\cr
 Type: \tab Package\cr
-Version: \tab 1.3 \cr
-Date: \tab 2025-07-10\cr
+Version: \tab 1.4 \cr
+Date: \tab 2025-09-07\cr
 License: \tab GPL-2\cr
 }
 }
@@ -34,6 +34,11 @@ integrating prediction from different data types. Bioinformatics, 33(9): 1407--1
 
 Segal M. and Xiao Y. (2011). Multivariate random forests.
 Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 1(1): 80--87.
+
+Tsagris M.T., Preston S. and Wood A.T.A. (2011). A data-based power transformation
+for compositional data. In Proceedings of the 4th Compositional Data Analysis
+Workshop, Girona, Spain.
+https://arxiv.org/pdf/1106.1451.pdf
 
 Alenazi A. (2023). A review of compositional data analysis and recent advances.
 Communications in Statistics--Theory and Methods, 52(16): 5535--5567.

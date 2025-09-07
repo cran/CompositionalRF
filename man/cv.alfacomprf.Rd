@@ -75,6 +75,11 @@ framework for integrating prediction from different data types. Bioinformatics,
 Segal M. and Xiao Y. (2011). Multivariate random forests.
 Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 1(1):
 80--87.
+
+Tsagris M.T., Preston S. and Wood A.T.A. (2011). A data-based power transformation
+for compositional data. In Proceedings of the 4th Compositional Data Analysis
+Workshop, Girona, Spain.
+https://arxiv.org/pdf/1106.1451.pdf
 }
 
 \author{

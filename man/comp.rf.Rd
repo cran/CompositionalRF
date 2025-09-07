@@ -71,10 +71,9 @@ Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 1(1):
 }
 
 \author{
-Michail Tsagris.
+Michail Tsagris and Christos Adam.
 
-R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr} and
-Christos Adam \email{pada4m4@gmail.com}.
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr} and Christos Adam \email{pada4m4@gmail.com}.
 }
 
 %\note{

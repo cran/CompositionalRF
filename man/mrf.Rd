@@ -67,8 +67,7 @@ Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 1(1): 80--87.
 \author{
 Christos Adam.
 
-R implementation and documentation: Christos Adam \email{pada4m4@gmail.com} and
-Michail Tsagris \email{mtsagris@uoc.gr}.
+R implementation and documentation: Christos Adam \email{pada4m4@gmail.com}.
 }
 
 %\note{
