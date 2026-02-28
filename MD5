@@ -1,12 +1,12 @@
-77232bdb0f4526f31e3ef8fb5dc5954a *DESCRIPTION
+0c29e081168a375b189b4d215357564f *DESCRIPTION
 5ccd995a6a0b8e72999f2d599253fbf7 *NAMESPACE
 d0ae6b2cee5c226ee4f7f79cc6c54e29 *R/RcppExports.R
-bbaf6ad1039c1044688721518448fb05 *R/alfa.comp.rf.R
+394798b274033d4f525c05e67813bf3a *R/alfa.comp.rf.R
 81b6f85e51de97baa3ce0d4b5904049e *R/comp.rf.R
-8764d2ee2298acdbc4ec1d9849be9bc1 *R/cv.alfacomprf.R
+d8082a31ef074373e8cc05431b151d70 *R/cv.alfacomprf.R
 7c83d7b59ba2b00389a134f30104e0e9 *R/cv.comprf.R
 5704b0058709f64aaa7ba37161e5761e *R/mrf.R
-189bd70b51acffbeae37871e64e08fac *man/CompositionalRF-package.Rd
+d05c3ee0ed28346587fce46a7df589ec *man/CompositionalRF-package.Rd
 421fd0a32d3e4b2e9c3047ab4d90ac3f *man/alfa.comp.rf.Rd
 3209abf3567446a6ed58f0ac34e2db7d *man/comp.rf.Rd
 6ce0aeb84fb4666f867204a72abaf924 *man/cv.alfacomprf.Rd
@@ -15,4 +15,4 @@ bbaf6ad1039c1044688721518448fb05 *R/alfa.comp.rf.R
 80d6221b12e36ab958bec262b2aa6995 *src/Makevars
 809da2f5856b8740a88650aed6c45c86 *src/Makevars.win
 d337a4d4dc56460abd19026b35a801f5 *src/RcppExports.cpp
-9f32bda0dc88aed21f8a915ebb6a7818 *src/mrf.cpp
+fcd80d0fbaa720db7f8c5a6f0b04f5d2 *src/mrf.cpp

@@ -18,9 +18,9 @@ cv.alfacomprf <- function(y, x, a = seq(-1, 1, by = 0.1), ntrees = c(100, 500, 1
 
   for ( k in 1:nfolds ) {
     ytrain <- y[ -folds[[ k ]], ]
-    ytest <- y[ folds[[ k ]],  ]
-    xtrain <- x[-folds[[ k ]], ]
-    xtest <- x[folds[[ k ]], ]
+    ytest <- y[ folds[[ k ]],]
+    xtrain <- x[-folds[[ k ]], , drop = FALSE]
+    xtest <- x[folds[[ k ]], , drop = FALSE]
     est <- CompositionalRF::alfa.comp.rf(xtest, ytrain, xtrain, a = a, ntrees = ntrees, 
                                          nfeatures = nfeatures, minleaf = minleaf, ncores = ncores)
     for (i in 1:la) {

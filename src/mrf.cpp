@@ -1387,7 +1387,7 @@ SEXP alrOptimized(SEXP x) {
   R_xlen_t ncol = Rf_ncols(x);
   
   if(ncol < 2) {
-    Rf_error("Input matrix must have at least two columns");
+    stop("Input matrix must have at least two columns");
   }
   
   // Allocate output matrix with one fewer column than input.
@@ -1460,7 +1460,7 @@ SEXP alrOptimized(SEXP x) {
     }
     
   } else {
-    Rf_error("Unsupported input type for alrOptimized");
+    stop("Unsupported input type for alrOptimized");
   }
   
   UNPROTECT(1);

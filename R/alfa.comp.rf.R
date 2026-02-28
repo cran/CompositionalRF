@@ -1,6 +1,6 @@
 alfa.comp.rf <- function(xnew = x, y, x, a = seq(-1, 1, by = 0.1), ntrees, nfeatures, 
                          minleaf, ncores = 1) {
-
+  
   config <- as.matrix( expand.grid(ntrees = ntrees, nfeatures = nfeatures, minleaf = minleaf) )
   p <- dim(config)[1]
   est <- list()
