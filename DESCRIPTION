@@ -1,8 +1,8 @@
 Package: CompositionalRF
 Type: Package
 Title: Multivariate Random Forest with Compositional Responses
-Version: 1.6
-Date: 2026-02-28
+Version: 1.7
+Date: 2026-09-10
 Authors@R: c( person("Michail", "Tsagris", role = c("aut", "cre"), email = "mtsagris@uoc.gr"),
              person("Christos", "Adam", role = c("aut"), email = "pada4m4@gmail.com") )
 Maintainer: Michail Tsagris <mtsagris@uoc.gr>
@@ -15,7 +15,7 @@ License: GPL (>= 2)
 SystemRequirements: GNU make
 Repository: CRAN
 NeedsCompilation: yes
-Packaged: 2026-02-28 10:13:15 UTC; mtsag
+Packaged: 2026-09-10 13:01:24 UTC; mtsag
 Author: Michail Tsagris [aut, cre],
   Christos Adam [aut]
-Date/Publication: 2026-02-28 11:20:02 UTC
+Date/Publication: 2026-09-10 13:30:02 UTC

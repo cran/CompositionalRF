@@ -11,12 +11,21 @@ alfa.comp.rf <- function(xnew = x, y, x, a = seq(-1, 1, by = 0.1), ntrees, nfeat
   est <- sapply(names, function(x) NULL)
 
   for ( i in 1:la ) {
-    ya <- Compositional::alfa(y, a[i])$aff
-    for (j in 1:p) {
-      yhat <- CompositionalRF::mrf(xnew = xnew, y = ya, x = x, ntrees = config[j, 1], 
-                                   nfeatures = config[j, 2], minleaf = config[j, 3], ncores = ncores)
-      est[[ i ]][[ j ]] <- Compositional::alfainv(yhat, a[i])
-    }
+    if ( abs( a[i] ) < 1e-6 ) {
+      ya <- Compositional::alfa(y, 0, h = FALSE)$aff
+      for (j in 1:p) {
+        yhat <- CompositionalRF::mrf(xnew = xnew, y = ya, x = x, ntrees = config[j, 1], 
+                                     nfeatures = config[j, 2], minleaf = config[j, 3], ncores = ncores)
+        est[[ i ]][[ j ]] <- Compositional::alfainv(yhat, 0, h = FALSE)
+      }    
+    } else  {
+      ya <- y^a[i]
+      for (j in 1:p) {
+        yhat <- CompositionalRF::mrf(xnew = xnew, y = ya, x = x, ntrees = config[j, 1], 
+                                     nfeatures = config[j, 2], minleaf = config[j, 3], ncores = ncores)^( 1/a[i] )
+        est[[ i ]][[ j ]] <- yhat / Rfast::rowsums(yhat)
+      }
+    }  
   }
   
   est
